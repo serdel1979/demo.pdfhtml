@@ -7,9 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
+var keysDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "dpkeys");
 builder.Services.AddDataProtection()
-        .PersistKeysToFileSystem(new DirectoryInfo(@"/var/dpkeys/"))  
-        .SetApplicationName("ConvertPDF");  
+    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
+    .SetApplicationName("ConvertPDF");
+
+ 
 
 
 var app = builder.Build();
