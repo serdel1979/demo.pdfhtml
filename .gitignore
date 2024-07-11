@@ -396,6 +396,8 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+ConvertPDF/wwwroot/*.*
+
 # JetBrains Rider
 *.sln.iml
 
