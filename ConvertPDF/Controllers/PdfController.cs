@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 
 using HtmlAgilityPack;
-using Aspose.Pdf;
+//using Aspose.Pdf;
 using ConvertPDF.Models;
 
 using SkiaSharp;
-using Aspose.Pdf.Text;
+using UglyToad.PdfPig;
+//using Aspose.Pdf.Text;
 
 
 namespace ConvertPDF.Controllers
@@ -45,29 +46,24 @@ namespace ConvertPDF.Controllers
 
         private string ConvertPdfToHtml(string pdfPath)
         {
-            var pdfDocument = new Document(pdfPath);
+            using var pdfDocument = PdfDocument.Open(pdfPath);
             var outputHtml = new StringWriter();
 
-            foreach (var page in pdfDocument.Pages)
+            foreach (var page in pdfDocument.GetPages())
             {
                 outputHtml.WriteLine($"<h2>Page {page.Number}</h2>");
 
                 // Extraer texto de la página
-                var absorber = new TextAbsorber();
-                page.Accept(absorber);
-                var pageText = absorber.Text;
+                var pageText = page.Text;
                 outputHtml.WriteLine($"<p>{pageText}</p>");
 
                 var imageCounter = 1;
 
-                foreach (var image in page.Resources.Images)
+                foreach (var image in page.GetImages())
                 {
-                    using (var imageStream = new MemoryStream())
+                    using (var imageStream = new MemoryStream((byte[])image.RawBytes))
                     {
-                        image.Save(imageStream);
-                        var imageBytes = imageStream.ToArray();
-
-                        using (var skBitmap = SKBitmap.Decode(imageBytes))
+                        using (var skBitmap = SKBitmap.Decode((byte[])image.RawBytes))
                         using (var skImage = SKImage.FromBitmap(skBitmap))
                         using (var skData = skImage.Encode(SKEncodedImageFormat.Png, 100))
                         {
