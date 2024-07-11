@@ -1,0 +1,11 @@
+﻿@model ConvertPDF.Models.PdfViewModel
+@{
+    ViewBag.Title = "Cargar PDF";
+}
+
+<h2>Cargar PDF</h2>
+
+<form asp-action="Upload" asp-controller="Pdf" enctype="multipart/form-data" method="post">
+    <input type="file" name="file" />
+    <button type="submit">Ver</button>
+</form>
