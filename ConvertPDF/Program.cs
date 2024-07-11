@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,10 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
-builder.Services.AddControllersWithViews(options =>
-{
-    options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
-});
+builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(@"/var/dpkeys/"))  
+        .SetApplicationName("ConvertPDF");  
 
 
 var app = builder.Build();
