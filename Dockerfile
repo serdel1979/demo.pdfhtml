@@ -18,7 +18,7 @@ WORKDIR /app
 COPY --from=build-env /app/ConvertPDF/out .
 
 # Declarar el volumen para las claves de protección de datos
-VOLUME ["/var/dpkeys"]
+#VOLUME ["/var/dpkeys"]
 
 # Establecer el punto de entrada de la aplicación
 ENTRYPOINT ["dotnet", "ConvertPDF.dll"]
