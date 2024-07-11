@@ -16,22 +16,25 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# Instalar las dependencias nativas de SkiaSharp
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    libfontconfig1 \
-    libfreetype6 \
-    libjpeg-turbo8 \
-    libpng16-16 \
-    libglib2.0-0 \
-    libx11-6 \
-    libxext6 \
-    libxrender1 && \
+# Actualizar e instalar las dependencias necesarias
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libfontconfig1 \
+        libfreetype6 \
+        libjpeg-turbo8 \
+        libpng16-16 \
+        libglib2.0-0 \
+        libx11-6 \
+        libxext6 \
+        libxrender1 && \
     rm -rf /var/lib/apt/lists/*
 
+# Copiar la aplicación publicada desde el entorno de compilación
 COPY --from=build-env /app/ConvertPDF/out .
 
 # Establecer el punto de entrada de la aplicación
 ENTRYPOINT ["dotnet", "ConvertPDF.dll"]
+
 
 
 
