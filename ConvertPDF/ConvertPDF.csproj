@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="BitMiracle.Docotic.Pdf" Version="9.4.17342" />
+    <PackageReference Include="PdfPig" Version="0.1.8" />
   </ItemGroup>
 
 </Project>

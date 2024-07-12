@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ConvertPDF.Models;
 using System;
 using BitMiracle.Docotic.Pdf;
+using UglyToad.PdfPig.XObjects;
 
 
 //using Aspose.Pdf.Text;
@@ -20,6 +21,88 @@ namespace ConvertPDF.Controllers
         {
             return View();
         }
+
+
+        [HttpPost]
+        public IActionResult Upload(IFormFile file)
+        {
+            if (file != null && file.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                string filePath = Path.Combine(uploadsFolder, file.FileName);
+
+                // Crear el directorio si no existe
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Guardar el archivo subido en el servidor
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                var model = new PdfViewModel
+                {
+                    TextContent = "",
+                    ImagePaths = new List<string>()
+                };
+
+                using (var pdf = UglyToad.PdfPig.PdfDocument.Open(filePath))
+                {
+                    int imgCount = 1;
+                    foreach (UglyToad.PdfPig.Content.Page page in pdf.GetPages())
+                    {
+                        // Extraer texto
+                        model.TextContent += page.Text;
+
+                        foreach (var image in page.GetImages())
+                        {
+                            var rawBytes = image.RawBytes.ToArray();
+                            using (var imageStream = new MemoryStream(rawBytes))
+                            {
+                                string relativePath = SaveImage(imageStream, page.Number, imgCount);
+                                model.ImagePaths.Add(relativePath);
+                                imgCount++;
+                            }
+                        }
+                    }
+                }
+
+                // Mostrar la vista "Display" con el modelo
+                return View("Display", model);
+            }
+
+            // Redireccionar a la acción "Index" si no se subió ningún archivo
+            return RedirectToAction("Index");
+        }
+
+
+
+        private string SaveImage(MemoryStream imageStream, int pageNumber, int imageCounter)
+        {
+            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+            // Crear el directorio si no existe
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            string imagePath = Path.Combine(uploadsFolder, $"Page{pageNumber}_Image{imageCounter}.png");
+            string relativePath = $"/images/Page{pageNumber}_Image{imageCounter}.png";
+
+            using (var fileStream = new FileStream(imagePath, FileMode.Create, FileAccess.Write))
+            {
+                imageStream.WriteTo(fileStream);
+            }
+
+            return relativePath;
+        }
+
+
+        /*
 
         [HttpPost]
         public IActionResult Upload(IFormFile file)
@@ -55,17 +138,43 @@ namespace ConvertPDF.Controllers
                     model.TextContent = pdf.GetText();
                 }
 
-               
+                using (UglyToad.PdfPig.PdfDocument pdfDocument= UglyToad.PdfPig.PdfDocument.Open(filePath))
+                {
 
-                // Mostrar la vista "Display" con el modelo
-                return View("Display", model);
+                    int imgCount = 1;
+                    foreach (UglyToad.PdfPig.Content.Page page in pdfDocument.GetPages())
+                    {
+                        List<XObjectImage> images = page.GetImages().Cast<XObjectImage>().ToList();
+                        foreach(XObjectImage image in images)
+                        {
+                            byte[] imgByte = image.RawBytes.ToArray();
+
+
+                            using (var stream = new FileStream(uploadsFolder +"\\"+ imgCount+".png", FileMode.Create, FileAccess.Write))
+                            using (BinaryWriter writer = new BinaryWriter(stream))
+                            {
+                                writer.Write(imgByte);
+                                writer.Flush();
+                            }
+                            imgCount++;
+                        }
+
+                    }
+
+
+                }
+
+
+
+                    // Mostrar la vista "Display" con el modelo
+                    return View("Display", model);
             }
 
             // Redireccionar a la acción "Index" si no se subió ningún archivo
             return RedirectToAction("Index");
         }
 
-
+*/
 
         /*
 
@@ -291,21 +400,21 @@ namespace ConvertPDF.Controllers
 
                 */
 
+        /*
+                private string SaveImage(MemoryStream imageStream, int pageNumber, int imageCounter)
+                {
+                    string imagePath = Path.Combine("wwwroot/images", $"Page{pageNumber}_Image{imageCounter}.png");
+                    string relativePath = $"/images/Page{pageNumber}_Image{imageCounter}.png";
 
-        private string SaveImage(MemoryStream imageStream, int pageNumber, int imageCounter)
-        {
-            string imagePath = Path.Combine("wwwroot/images", $"Page{pageNumber}_Image{imageCounter}.png");
-            string relativePath = $"/images/Page{pageNumber}_Image{imageCounter}.png";
+                    using (var fileStream = new FileStream(imagePath, FileMode.Create, FileAccess.Write))
+                    {
+                        imageStream.WriteTo(fileStream);
+                    }
 
-            using (var fileStream = new FileStream(imagePath, FileMode.Create, FileAccess.Write))
-            {
-                imageStream.WriteTo(fileStream);
-            }
+                    return relativePath;
+                }
 
-            return relativePath;
-        }
-
-
+                */
 
 
 

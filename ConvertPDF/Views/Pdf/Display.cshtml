@@ -7,10 +7,14 @@
 </head>
 <body>
     <div>
-        <h2>Texto del archivo</h2>
+        <h2>Text Content</h2>
         <p>@Html.Raw(Model.TextContent)</p>
 
-
+        <h2>Images</h2>
+        @foreach (var imagePath in Model.ImagePaths)
+        {
+            <img src="@imagePath" alt="PDF Image" />
+        }
     </div>
 </body>
 </html>
