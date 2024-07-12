@@ -33,7 +33,9 @@ namespace ConvertPDF.Controllers
                 // Guardar el archivo subido en el servidor
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
+                    Console.WriteLine(stream);
                     file.CopyTo(stream);
+                    Console.WriteLine(stream);
                 }
 
                
