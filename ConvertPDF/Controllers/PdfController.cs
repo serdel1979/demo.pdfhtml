@@ -29,6 +29,7 @@ namespace ConvertPDF.Controllers
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 string filePath = Path.Combine(uploadsFolder, file.FileName);
 
+                Console.WriteLine(filePath);
                 // Guardar el archivo subido en el servidor
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
