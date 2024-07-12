@@ -35,10 +35,11 @@ namespace ConvertPDF.Controllers
                     file.CopyTo(stream);
                 }
 
-                // Convertir el PDF a HTML
+               
                 string htmlContent = ConvertPdfToHtml(filePath);
 
-                // Crear el modelo para la vista
+                Console.WriteLine("HTML Content: " + htmlContent);
+
                 var model = new PdfViewModel
                 {
                     HtmlContent = htmlContent
