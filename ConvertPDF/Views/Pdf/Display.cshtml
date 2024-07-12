@@ -1,8 +1,13 @@
-﻿@model ConvertPDF.Models.PdfViewModel
-@{
-    ViewBag.Title = "Contenido del PDF";
-}
+﻿@model PdfViewModel
 
-<h2>Contenido del PDF</h2>
-
-@Html.Raw(Model.HtmlContent)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Display</title>
+</head>
+<body>
+    <div>
+        @Html.Raw(Model.HtmlContent)
+    </div>
+</body>
+</html>

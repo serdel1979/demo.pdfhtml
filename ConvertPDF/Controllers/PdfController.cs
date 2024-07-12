@@ -21,71 +21,79 @@ namespace ConvertPDF.Controllers
         }
 
 
-        [HttpPost]
-        public IActionResult Upload(IFormFile file)
-        {
-            if (file != null && file.Length > 0)
-            {
-                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                string filePath = Path.Combine(uploadsFolder, file.FileName);
 
-                Console.WriteLine(filePath);
-                // Guardar el archivo subido en el servidor
-                using (var stream = new FileStream(filePath, FileMode.Create))
+
+
+
+
+
+        
+                [HttpPost]
+                public IActionResult Upload(IFormFile file)
                 {
-                    file.CopyTo(stream);
+                    if (file != null && file.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                        string filePath = Path.Combine(uploadsFolder, file.FileName);
+
+                        Console.WriteLine(filePath);
+                        // Guardar el archivo subido en el servidor
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                        }
+
+
+                        string htmlContent = ConvertPdfToHtml(filePath);
+
+                        Console.WriteLine("HTML Content: " + htmlContent);
+
+                        var model = new PdfViewModel
+                        {
+                            HtmlContent = htmlContent
+                        };
+
+                        Console.WriteLine("HTML -> "+model.HtmlContent);
+
+                        return View("Display", model);
+                    }
+
+                    // Redireccionar a la acción "Index" si no se subió ningún archivo
+                    return RedirectToAction("Index");
                 }
 
-               
-                string htmlContent = ConvertPdfToHtml(filePath);
 
-                Console.WriteLine("HTML Content: " + htmlContent);
-
-                var model = new PdfViewModel
+                private string ConvertPdfToHtml(string pdfPath)
                 {
-                    HtmlContent = htmlContent
-                };
+                    SautinSoft.PdfFocus f = new SautinSoft.PdfFocus();
 
-                // Mostrar la vista "Display" con el modelo
-                return View("Display", model);
-            }
+                    f.HtmlOptions.IncludeImageInHtml = true;
 
-            // Redireccionar a la acción "Index" si no se subió ningún archivo
-            return RedirectToAction("Index");
-        }
+                    f.OpenPdf(pdfPath);
 
-
-        private string ConvertPdfToHtml(string pdfPath)
-        {
-            SautinSoft.PdfFocus f = new SautinSoft.PdfFocus();
-
-            f.HtmlOptions.IncludeImageInHtml = true;
-
-            f.OpenPdf(pdfPath);
-
-            if (f.PageCount > 0)
-            {
-                using (var ms = new MemoryStream())
-                {
-                    int res = f.ToHtml(ms);
-
-                    if (res == 0) // 0 indica que la conversión fue exitosa
+                    if (f.PageCount > 0)
                     {
-                        ms.Position = 0;
-                        using (var reader = new StreamReader(ms))
+                        using (var ms = new MemoryStream())
                         {
-                            return reader.ReadToEnd();
+                            int res = f.ToHtml(ms);
+
+                            if (res == 0) // 0 indica que la conversión fue exitosa
+                            {
+                                ms.Position = 0;
+                                using (var reader = new StreamReader(ms))
+                                {
+                                    return reader.ReadToEnd();
+                                }
+                            }
                         }
                     }
+
+                    return string.Empty;
                 }
-            }
-
-            return string.Empty;
-        }
 
 
 
-
+                
 
 
 
