@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using SautinSoft;
 
-
-
-using HtmlAgilityPack;
-//using Aspose.Pdf;
 using ConvertPDF.Models;
+using System;
 
-using SkiaSharp;
-using UglyToad.PdfPig;
+
 //using Aspose.Pdf.Text;
 
 
@@ -29,21 +26,94 @@ namespace ConvertPDF.Controllers
         {
             if (file != null && file.Length > 0)
             {
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", file.FileName);
-                using (var stream = new FileStream(path, FileMode.Create))
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                string filePath = Path.Combine(uploadsFolder, file.FileName);
+
+                // Guardar el archivo subido en el servidor
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
-
                 }
-                string htmlContent = ConvertPdfToHtml(path);
-                var model = new PdfViewModel { HtmlContent = htmlContent };
+
+                // Convertir el PDF a HTML
+                string htmlContent = ConvertPdfToHtml(filePath);
+
+                // Crear el modelo para la vista
+                var model = new PdfViewModel
+                {
+                    HtmlContent = htmlContent
+                };
+
+                // Mostrar la vista "Display" con el modelo
                 return View("Display", model);
             }
 
+            // Redireccionar a la acción "Index" si no se subió ningún archivo
             return RedirectToAction("Index");
         }
 
 
+        private string ConvertPdfToHtml(string pdfPath)
+        {
+            SautinSoft.PdfFocus f = new SautinSoft.PdfFocus();
+
+            f.HtmlOptions.IncludeImageInHtml = true;
+
+            f.OpenPdf(pdfPath);
+
+            if (f.PageCount > 0)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    int res = f.ToHtml(ms);
+
+                    if (res == 0) // 0 indica que la conversión fue exitosa
+                    {
+                        ms.Position = 0;
+                        using (var reader = new StreamReader(ms))
+                        {
+                            return reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+
+
+
+
+
+
+
+
+
+        /*
+        private string ConvertPdfToHtml(string pdfPath)
+        {
+            SautinSoft.PdfFocus f = new SautinSoft.PdfFocus();
+
+            f.OpenPdf(pdfPath);
+
+            if(f.PageCount > 0)
+            {
+                int res = f.ToHtml(pdfPath);
+            }
+
+            return pdfPath;
+        }
+
+        */
+
+
+
+
+
+
+
+        /*
         private string ConvertPdfToHtml(string pdfPath)
         {
             using var pdfDocument = PdfDocument.Open(pdfPath);
@@ -83,7 +153,7 @@ namespace ConvertPDF.Controllers
         }
 
 
-
+        */
 
 
         /*
