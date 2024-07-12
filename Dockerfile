@@ -12,8 +12,14 @@ COPY ConvertPDF/. ./ConvertPDF/
 WORKDIR /app/ConvertPDF
 RUN dotnet publish -c Release -o out
 
-# Utilizar la imagen base de .NET 8 ASP.NET Core Runtime para ejecutar la aplicación
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Utilizar una imagen base mínima para ASP.NET Core
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime-env
 WORKDIR /app
 COPY --from=build-env /app/ConvertPDF/out .
+
+# Copiar el directorio wwwroot con dpkeys
+COPY --from=build-env /app/ConvertPDF/wwwroot /app/wwwroot
+
+# Establecer el punto de entrada de la aplicación
 ENTRYPOINT ["dotnet", "ConvertPDF.dll"]
+
