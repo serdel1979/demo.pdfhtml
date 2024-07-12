@@ -2,6 +2,18 @@
 @{
     ViewBag.Title = "Cargar PDF";
 }
+<style>
+        .loading {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #000;
+            z-index: 1000;
+        }
+    </style>
 
 <h2>Cargar PDF</h2>
 
@@ -9,3 +21,11 @@
     <input type="file" name="file" />
     <button type="submit">Ver</button>
 </form>
+
+<div class="loading" id="loadingIndicator">Cargando, por favor espera...</div>
+
+<script>
+    document.getElementById("uploadForm").addEventListener("submit", function () {
+        document.getElementById("loadingIndicator").style.display = "block";
+    });
+</script>
